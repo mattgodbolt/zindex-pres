@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>reveal.js – The HTML Presentation Framework</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="reveal.js/dist/reset.css">
+    <link rel="stylesheet" href="reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="reveal.js/dist/theme/black.css" id="theme">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css">
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+        <section>
+            <section>
+                <h1>zindex</h1>
+            </section>
+            <section>
+                <h3>My problem</h3>
+                <ul>
+                    <li>1,000s of historical giant gzip text files</li>
+                    <li>Needed to be able to search</li>
+                </ul>
+            </section>
+            <section>
+                <ul>
+                    <li><code>zgrep</code> is cool!</li>
+                    <li class="fragment">...but slow</li>
+                </ul>
+                <pre><code data>
+godbolt:~ $ ls -hl some-file.csv.gz
+505M Oct 14 14:38 some-file.csv.gz
+godbolt:~ $ time zgrep AAPL.O some-file.csv.gz | wc -l
+864221
+________________________________________________________
+Executed in   27.58 secs   fish           external
+                </code></pre>
+            </section>
+            <section>
+                <pre><code>
+godbolt:~ 5.2s $ time zq some-file.csv.gz AAPL.O | wc -l
+864221
+________________________________________________________
+Executed in    4.40 secs   fish           external
+                </code></pre>
+            </section>
+            <section>
+                <pre><code>
+godbolt:~ $ time zindex -d , -f 1 some-file.csv.gz
+________________________________________________________
+Executed in  108.26 secs   fish           external
+                </code></pre>
+            </section>
+            <section>
+                <h3>Dirty secret</h3>
+                <pre><code>
+godbolt:~ $ ls -hl some-file.csv.gz.index
+2.3G Oct 14 14:43 some-file.csv.gz.zindex
+                </code></pre>
+            </section>
+            <section>
+                <h3>More realistic</h3>
+                <pre><code>
+godbolt:~ $ ~/dev/personal/zindex/build/Release/zindex ~/some-file.csv.gz
+godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
+629K Oct 14 16:58 /home/mgodbolt/some-file.csv.gz.zindex
+                </code></pre>
+            </section>
+        </section>
+
+        <section>
+            <section><h2>So how does it work?</h2></section>
+            <section><h2>How doe DEFLATE work?</h2></section>
+        </section>
+
+        <section>
+            <section>
+                <h5>hellig thing does it too</h5>
+            </section>
+        </section>
+    </div>
+
+</div>
+
+<script src="reveal.js/dist/reveal.js"></script>
+<script src="reveal.js/plugin/zoom/zoom.js"></script>
+<script src="reveal.js/plugin/notes/notes.js"></script>
+<script src="reveal.js/plugin/search/search.js"></script>
+<script src="reveal.js/plugin/markdown/markdown.js"></script>
+<script src="reveal.js/plugin/highlight/highlight.js"></script>
+<script type="text/javascript">
+
+    // Also available as an ES module, see:
+    // https://revealjs.com/initialization/
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        center: true,
+        hash: true,
+
+// Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
+    });
+
+</script>
+
+</body>
+</html>
