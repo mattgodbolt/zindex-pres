@@ -20,6 +20,12 @@
 
     <!-- Theme used for syntax highlighting of code -->
     <link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css">
+    <style>
+        .compress {
+            white-space: pre;
+            font-family: monospace;
+        }
+    </style>
 </head>
 
 <body>
@@ -42,50 +48,80 @@
                     <li><code>zgrep</code> is cool!</li>
                     <li class="fragment">...but slow</li>
                 </ul>
-                <pre><code data>
+            </section>
+            <section>
+                <pre><code data-trim>
 godbolt:~ $ ls -hl some-file.csv.gz
 505M Oct 14 14:38 some-file.csv.gz
 godbolt:~ $ time zgrep AAPL.O some-file.csv.gz | wc -l
 864221
-________________________________________________________
-Executed in   27.58 secs   fish           external
+Executed in   27.58 secs
                 </code></pre>
             </section>
             <section>
-                <pre><code>
+                <h3>Enter <code>zq</code></h3>
+                <pre><code data-trim>
 godbolt:~ 5.2s $ time zq some-file.csv.gz AAPL.O | wc -l
 864221
-________________________________________________________
-Executed in    4.40 secs   fish           external
+Executed in    4.40 secs
                 </code></pre>
             </section>
             <section>
-                <pre><code>
+                <h3>The catch</h3>
+                <pre class="fragment"><code data-trim>
 godbolt:~ $ time zindex -d , -f 1 some-file.csv.gz
-________________________________________________________
-Executed in  108.26 secs   fish           external
+Executed in  108.26 secs
                 </code></pre>
             </section>
             <section>
                 <h3>Dirty secret</h3>
-                <pre><code>
+                <pre><code data-trim>
 godbolt:~ $ ls -hl some-file.csv.gz.index
 2.3G Oct 14 14:43 some-file.csv.gz.zindex
                 </code></pre>
             </section>
             <section>
                 <h3>More realistic</h3>
-                <pre><code>
-godbolt:~ $ ~/dev/personal/zindex/build/Release/zindex ~/some-file.csv.gz
+                <pre><code data-trim>
+godbolt:~ $ zindex ~/some-file.csv.gz
 godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
-629K Oct 14 16:58 /home/mgodbolt/some-file.csv.gz.zindex
+629K Oct 14 16:58 some-file.csv.gz.zindex
                 </code></pre>
             </section>
         </section>
 
         <section>
             <section><h2>So how does it work?</h2></section>
-            <section><h2>How doe DEFLATE work?</h2></section>
+            <section>
+                <h2>How does DEFLATE work?</h2>
+                <ul>
+                    <li>Lempel-Ziv</li>
+                    <li>Huffman coding</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section><h2>Lempel-Ziv</h2></section>
+            <section>
+                <div class="compress">compress the compressible</div>
+            </section>
+            <section>
+                <pre class="compress">
+0         1         2
+0123456789012345678901234
+<span
+        class="fragment highlight-current-red" data-fragment-index="1"><span
+        class="fragment highlight-current-green" data-fragment-index="2">compress</span> the </span><span
+        class="fragment highlight-current-red" data-fragment-index="2">compress</span><span
+        class="fragment highlight-current-red" data-fragment-index="3">ible</span></pre>
+<pre class="compress fragment" data-fragment-index="1">"compress the "</pre>
+<pre class="compress fragment" data-fragment-index="2">(go back 12, copy 8)</pre>
+<pre class="compress fragment" data-fragment-index="3">"ible"</pre>
+                <div class="fragment">
+                    13 + (backref, len) + 4
+                </div>
+            </section>
         </section>
 
         <section>
