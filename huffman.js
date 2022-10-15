@@ -37,10 +37,20 @@ class Tree {
         this.root = root;
         this.codeToSymbol = {};
         this.root.enname(this.codeToSymbol, "");
+        if (!this.root.children)
+            this.root.name = "0";
     }
 
     toDag() {
         return this.root.toDag();
+    }
+
+    compress(text) {
+        return (text.split('').map(x => this.codeToSymbol[x])).join(" ");
+    }
+
+    numSymbols() {
+        return Object.keys(this.codeToSymbol).length;
     }
 }
 

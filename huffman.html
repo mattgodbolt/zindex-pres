@@ -15,17 +15,56 @@
             height: 100%;
         }
 
-        svg {
-            width: 100%;
-            height: 100%;
+        div.outer {
+            display: flex;
+            flex-direction: column;
+        }
+        div.top {
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+        div.bottom {
+            flex-grow: 1;
+        }
+        textarea.input {
+            display: block;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 7em;
+            width: 80%;
+        }
+
+        .output {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            width: 80%;
+        }
+        .output .bits {
+            font-size: 5em;
+            font-family: monospace;
+        }
+        .output .stats {
+            font-size: 4em;
         }
     </style>
 </head>
 <body>
 
-<form><label>To compress: <input id="input" type="text"></label></form>
-
-<svg></svg>
+<div class="outer">
+    <div class="top">
+        <form><textarea id="input" class="input"></textarea></form>
+        <div class="output">
+            <span class="bits">1101011</span>
+            <br>
+            <span class="stats"></span>
+        </div>
+    </div>
+    <div class="bottom">
+        <svg></svg>
+    </div>
+</div>
 
 <script type="module">
     import {makeTree} from "./huffman.js";
@@ -43,9 +82,13 @@
     update($input.value);
 
     function update(text) {
-        window.tree = makeTree(text);
+        const tree = makeTree(text);
+        const compressed = tree.compress(text);
+        d3.select("div.output .bits").text(compressed);
+        d3.select("div.output .stats").text(
+            `${text.length} original, ${compressed.replace(' ', '').length} bits compressed using ${tree.numSymbols()} symbols`);
 
-        const dag = d3.dagHierarchy()(window.tree.toDag());
+        const dag = d3.dagHierarchy()(tree.toDag());
         const nodeRadius = 40;
         const layout = d3
             .sugiyama() // base layout
