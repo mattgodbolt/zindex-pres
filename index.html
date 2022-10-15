@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>reveal.js – The HTML Presentation Framework</title>
+    <title>zindex and deflate</title>
 
     <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
     <meta name="author" content="Hakim El Hattab">
@@ -24,6 +24,13 @@
         .compress {
             white-space: pre;
             font-family: monospace;
+        }
+
+        pre.compress {
+            width: auto !important;
+            margin: auto !important;
+            text-align: center !important;
+            box-shadow: none !important;
         }
     </style>
 </head>
@@ -104,7 +111,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
         <section>
             <section><h2>Lempel-Ziv</h2></section>
             <section>
-                <div class="compress">compress the compressible</div>
+                <pre class="compress">compress the compressible</pre>
             </section>
             <section>
                 <pre class="compress">
@@ -115,12 +122,154 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
         class="fragment highlight-current-green" data-fragment-index="2">compress</span> the </span><span
         class="fragment highlight-current-red" data-fragment-index="2">compress</span><span
         class="fragment highlight-current-red" data-fragment-index="3">ible</span></pre>
-<pre class="compress fragment" data-fragment-index="1">"compress the "</pre>
-<pre class="compress fragment" data-fragment-index="2">(go back 12, copy 8)</pre>
-<pre class="compress fragment" data-fragment-index="3">"ible"</pre>
+                <pre class="compress fragment" data-fragment-index="1">"compress the "</pre>
+                <pre class="compress fragment" data-fragment-index="2">(go back 12, copy 8)</pre>
+                <pre class="compress fragment" data-fragment-index="3">"ible"</pre>
                 <div class="fragment">
                     13 + (backref, len) + 4
                 </div>
+            </section>
+            <section>
+                <h3>Backref?</h3>
+                <div>Use new byte values for backref!</div>
+                <ul>
+                    <li>256 = end of block</li>
+                    <li>257 = copy 3</li>
+                    <li>258 = copy 4</li>
+                    <li>259 = copy 5</li>
+                    <li>...etc...</li>
+                </ul>
+                <div>(offsets coded after)</div>
+            </section>
+            <section>
+                <h3>But Matt, bytes are 8 bits?!?</h3>
+                <div>Didn't we just make everything worse?</div>
+            </section>
+            <section>
+                <h3>Worry not - Huffman to the rescue!</h3>
+            </section>
+        </section>
+
+        <section>
+            <section><h2>Huffman Trees</h2></section>
+            <section>
+                <pre class="compress">compress the compressible</pre>
+                <table>
+                    <tr>
+                        <th>s</th>
+                        <th>e</th>
+                        <th>' '</th>
+                        <th>r</th>
+                        <th>p</th>
+                        <th>m</th>
+                        <th>o</th>
+                        <th>c</th>
+                        <th>l</th>
+                        <th>b</th>
+                        <th>i</th>
+                        <th>h</th>
+                        <th>t</th>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>1</td>
+                    </tr>
+                </table>
+            </section>
+            <section>
+                <h2>Magic</h2>
+            </section>
+            <section>
+                <table>
+                    <tr>
+                        <th>s</th>
+                        <td class="compress">00</td>
+                    </tr>
+                    <tr>
+                        <th>' '</th>
+                        <td class="compress">010</td>
+                    </tr>
+                    <tr>
+                        <th>l</th>
+                        <td class="compress">0110</td>
+                    </tr>
+                    <tr>
+                        <th>i</th>
+                        <td class="compress">01110</td>
+                    </tr>
+                    <tr>
+                        <th>b</th>
+                        <td class="compress">01111</td>
+                    </tr>
+                    <tr>
+                        <th>t</th>
+                        <td class="compress">10000</td>
+                    </tr>
+                    <tr>
+                        <th>h</th>
+                        <td class="compress">10001</td>
+                    </tr>
+                    <tr>
+                        <th>c</th>
+                        <td class="compress">1001</td>
+                    </tr>
+                    <tr>
+                        <th>e</th>
+                        <td class="compress">101</td>
+                    </tr>
+                    <tr>
+                        <th>p</th>
+                        <td class="compress">1100</td>
+                    </tr>
+                    <tr>
+                        <th>r</th>
+                        <td class="compress">1101</td>
+                    </tr>
+                    <tr>
+                        <th>o</th>
+                        <td class="compress">1110</td>
+                    </tr>
+                    <tr>
+                        <th>m</th>
+                        <td class="compress">1111</td>
+                    </tr>
+                </table>
+            </section>
+            <section>
+                <pre class="compress">compress the compressible</pre>
+                <pre class="compress">1001 1110 1111 1100 1101 101 00 00 010 # compress_
+10000 10001 101 010 # the_
+1001 1110 1111 1100 1101 101 00 00 # compress
+01110 01111 0110 101 # ible
+                </pre>
+            </section>
+            <section><h2>but really</h2>
+                backreference offset and length codes would be in the dictionary
+            </section>
+
+            <section>
+                How often make tree?
+                changes over time?
+                gzip et al output and reset every ~64k
+                At these boundaries...we only need the history of output!
+                Make access points!
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <div class="fig-container" data-file="huffman.html"></div>
             </section>
         </section>
 
@@ -139,6 +288,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 <script src="reveal.js/plugin/search/search.js"></script>
 <script src="reveal.js/plugin/markdown/markdown.js"></script>
 <script src="reveal.js/plugin/highlight/highlight.js"></script>
+<script src="reveal.js-d3/reveald3.js"></script>
 <script type="text/javascript">
 
     // Also available as an ES module, see:
@@ -150,7 +300,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
         hash: true,
 
 // Learn about plugins: https://revealjs.com/plugins/
-        plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
+        plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight, Reveald3]
     });
 
 </script>
