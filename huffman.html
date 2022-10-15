@@ -18,21 +18,24 @@
         div.outer {
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
         div.top {
-            flex-shrink: 0;
-            flex-grow: 0;
         }
         div.bottom {
-            flex-grow: 1;
+            display: flex; /* no idea why but works */
+            justify-content: center;
+            flex: auto;
+            overflow: clip;
         }
         textarea.input {
             display: block;
             text-align: center;
             margin-left: auto;
             margin-right: auto;
-            font-size: 7em;
+            font-size: 6em;
             width: 80%;
+            height: 150px;
         }
 
         .output {
@@ -42,7 +45,7 @@
             width: 80%;
         }
         .output .bits {
-            font-size: 5em;
+            font-size: 4em;
             font-family: monospace;
         }
         .output .stats {

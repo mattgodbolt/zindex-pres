@@ -27,7 +27,8 @@ class Node {
             token: this.token === ' ' ? "' '" : this.token,
             id: this.name,
             children: this.children ? this.children.map(child => child.toDag()).reverse() : [],
-            leaf: !this.children
+            leaf: !this.children,
+            root: this.name === ""
         }
     }
 }
@@ -39,6 +40,7 @@ class Tree {
         this.root.enname(this.codeToSymbol, "");
         if (!this.root.children)
             this.root.name = "0";
+        else this.root.name = "";
     }
 
     toDag() {
