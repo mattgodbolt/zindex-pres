@@ -20,14 +20,17 @@
             flex-direction: column;
             height: 100%;
         }
+
         div.top {
         }
+
         div.bottom {
             display: flex; /* no idea why but works */
             justify-content: center;
             flex: auto;
             overflow: clip;
         }
+
         textarea.input {
             display: block;
             text-align: center;
@@ -44,10 +47,12 @@
             margin-right: auto;
             width: 80%;
         }
+
         .output .bits {
             font-size: 4em;
             font-family: monospace;
         }
+
         .output .stats {
             font-size: 4em;
         }
@@ -146,7 +151,11 @@
         const circle = nodesEnter.append("circle");
         circle.merge(nodes.select("circle"))
             .transition(transition)
-            .attr("r", nodeRadius)
+            .attr("r", n => {
+                if (n.data.root) return nodeRadius / 4;
+                if (!n.data.leaf) return nodeRadius * 2 / 4;
+                return nodeRadius;
+            })
             .attr("fill", (n) => n.data.leaf ? "#ee3456" : "#888888");
 
         // Add text to nodes
@@ -165,7 +174,10 @@
         nodesEnter
             .append("text")
             .classed("id", true)
-            .attr("transform", `translate(0,${nodeRadius / 3})`)
+            .attr("transform", n => {
+                const pos = n.data.leaf ? nodeRadius / 3 : 0;
+                return `translate(0,${pos})`
+            })
             .attr("font-weight", "bold")
             .attr("font-size", "small")
             .attr("font-family", "sans-serif")
