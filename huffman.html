@@ -178,6 +178,7 @@
     const svgSelection = d3.select("svg");
     const edgesGroup = svgSelection.append("g");
     const nodesGroup = svgSelection.append("g");
+    const defs = svgSelection.append("defs"); // For gradients
 
     const $input = document.getElementById("input");
     $input.value = "compress the compressible";
@@ -198,7 +199,6 @@
         const {width, height} = layout(dag);
 
         svgSelection.attr("viewBox", [0, 0, width, height].join(" "));
-        const defs = svgSelection.append("defs"); // For gradients
 
         const steps = dag.size();
         const interp = d3.interpolateRainbow;
@@ -221,6 +221,7 @@
         edges
             .enter()
             .append("path")
+            .merge(edges)
             .attr("d", ({points}) => line(points))
             .attr("fill", "none")
             .attr("stroke-width", 3)
@@ -251,12 +252,12 @@
         const nodes = nodesGroup
             .selectAll("g")
             .data(dag.descendants());
+        nodes.exit().remove();
         const nodesEnter = nodes
             .enter()
             .append("g")
+            .merge(nodes)
             .attr("transform", ({x, y}) => `translate(${x}, ${y})`);
-
-        nodes.exit().remove();
 
         // Plot node circles
         nodesEnter
