@@ -100,8 +100,8 @@
         const nodeRadius = 40;
         const layout = d3
             .sugiyama() // base layout
-            .coord(d3.coordSimplex())
-            .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeRadius, 3 * nodeRadius]);
+            .coord(d3.coordQuad())
+            .nodeSize((node) => [(node ? 3.2 : 0.25) * nodeRadius, 2.5 * nodeRadius]);
         const {width, height} = layout(dag);
 
         svgSelection.attr("viewBox", [0, 0, width, height].join(" "));
