@@ -26,7 +26,8 @@ class Node {
         return {
             token: this.token === ' ' ? "' '" : this.token,
             id: this.name,
-            children: this.children ? this.children.map(child => child.toDag()).reverse() : []
+            children: this.children ? this.children.map(child => child.toDag()).reverse() : [],
+            leaf: !this.children
         }
     }
 }
