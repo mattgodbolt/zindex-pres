@@ -23,16 +23,23 @@
             height: 100%;
         }
 
+        div.top {
+            max-height: 60%;
+            overflow-y: auto;
+        }
+
         div.top form {
+            flex: 0;
             margin-top: 10px;
             margin-left: 7%;
             margin-right: 7%;
         }
 
         div.bottom {
-            display: flex; /* no idea why but works */
+            display: flex;
             justify-content: center;
-            flex: auto;
+            flex-grow: 1;
+            flex-shrink: 1;
             overflow: clip;
         }
 
@@ -63,8 +70,6 @@
             margin-right: auto;
             width: 80%;
             font-size: xx-large;
-            max-height: 60%;
-            overflow-y: scroll;
         }
 
         .output .disclaimer {
@@ -104,7 +109,8 @@
         <svg></svg>
     </div>
     <div class="footer">
-        &copy; 2022 <a href="https://xania.org/">Matt Godbolt</a>. Source on <a href="https://github.com/mattgodbolt/zindex-pres">GitHub</a>.
+        &copy; 2022 <a href="https://xania.org/">Matt Godbolt</a>. Source on <a
+            href="https://github.com/mattgodbolt/zindex-pres">GitHub</a>.
     </div>
 </div>
 

@@ -72,7 +72,7 @@ export class TreeView {
             .append("text")
             .classed("token", true)
             .attr("transform", `translate(0,-${nodeRadius / 4})`)
-            .attr("font-size", `${nodeRadius/2}px`)
+            .attr("font-size", `${nodeRadius / 2}px`)
             .merge(nodes.select("text.token"))
             .classed("leaf", d => d.data.leaf)
             .classed("backref", d => d.data.backref)
@@ -83,7 +83,7 @@ export class TreeView {
             .merge(nodes.select("text.id"))
             .classed("leaf", d => d.data.leaf)
             .classed("backref", d => d.data.backref)
-            .attr("font-size", `${nodeRadius/3}px`)
+            .attr("font-size", `${nodeRadius / 3}px`)
             .attr("transform", n => {
                 const pos = n.data.leaf ? nodeRadius / 3 : 0;
                 return `translate(0,${pos})`
