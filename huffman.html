@@ -65,11 +65,19 @@
             font-size: xx-large;
         }
 
+        .output .disclaimer {
+            font-size: small;
+        }
+
         .output .bits {
             font-family: monospace;
         }
 
         .output .stats {
+        }
+
+        .footer {
+            text-align: center;
         }
     </style>
     <link rel="stylesheet" href="hufftree.css">
@@ -87,11 +95,14 @@
             <div class="bits"></div>
             <span class="stats"></span>
             <br>
-            <span>(compressed size doesn't include huffman table)</span>
+            <span class="disclaimer">Compressed size doesn't include Huffman table. Lempel-Ziv encoding is illustrative only.</span>
         </div>
     </div>
     <div class="bottom">
         <svg></svg>
+    </div>
+    <div class="footer">
+        &copy; 2022 <a href="https://xania.org/">Matt Godbolt</a>. Source on <a href="https://github.com/mattgodbolt/zindex-pres">GitHub</a>.
     </div>
 </div>
 
