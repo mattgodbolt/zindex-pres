@@ -8,6 +8,8 @@
     <style>
         html {
             height: 100%;
+            background: #333;
+            color: #ddd;
         }
 
         body {
@@ -21,7 +23,10 @@
             height: 100%;
         }
 
-        div.top {
+        div.top form {
+            margin-top: 10px;
+            margin-left: 7%;
+            margin-right: 7%;
         }
 
         div.bottom {
@@ -38,7 +43,18 @@
             margin-right: auto;
             font-size: 6em;
             width: 80%;
-            height: 150px;
+            height: 100px;
+        }
+
+        span.token {
+            display: inline-block;
+            border: 1px solid green;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+
+        span.token.backref {
+            border: 1px solid red;
         }
 
         .output {
@@ -46,15 +62,14 @@
             margin-left: auto;
             margin-right: auto;
             width: 80%;
+            font-size: xx-large;
         }
 
         .output .bits {
-            font-size: 4em;
             font-family: monospace;
         }
 
         .output .stats {
-            font-size: 4em;
         }
     </style>
     <link rel="stylesheet" href="hufftree.css">
@@ -63,11 +78,16 @@
 
 <div class="outer">
     <div class="top">
-        <form><textarea id="input" class="input"></textarea></form>
+        <form>
+            <label>To compress: <textarea id="input" class="input"></textarea></label>
+            <label><input type="checkbox" id="lz-input">Use Lempel-Ziv like compression</label>
+        </form>
         <div class="output">
-            <span class="bits">1101011</span>
-            <br>
+            <div class="lz"></div>
+            <div class="bits"></div>
             <span class="stats"></span>
+            <br>
+            <span>(compressed size doesn't include huffman table)</span>
         </div>
     </div>
     <div class="bottom">
@@ -78,24 +98,61 @@
 <script type="module">
     import {makeTree} from "./huffman.js";
     import {TreeView} from "./treeview.js";
+    import {lzCompress} from "./lz.js";
 
+    function d3tokens(tokens, node) {
+        const spans = node.selectAll("span").data(tokens);
+        spans.exit().remove();
+        return spans.enter()
+            .append("span")
+            .classed("token", true)
+            .merge(spans)
+            .text(n => `${n}`);
+    }
+
+    function lzTokens(lzTokens, node) {
+        return d3tokens(lzTokens, node)
+            .classed("backref", n => n.length > 1);
+    }
+
+    const $lzButton = document.getElementById("lz-input");
     const $input = document.getElementById("input");
-    $input.value = "compress the compressible";
-    $input.oninput = () => update($input.value);
+    const $output = d3.select("div.output");
+    $input.oninput = () => update();
+    $lzButton.onchange = () => update();
     $input.onchange = () => false;
     const treeView = new TreeView(d3.select("svg"));
-    update($input.value);
 
-    function update(text) {
-        const tokens = text.split('');
+    function onHashChange() {
+        const hash = window.location.hash.substring(1);
+        const params = {};
+        hash.split('&').map(hk => {
+            const [key, value] = hk.split('=');
+            if (key) {
+                params[decodeURIComponent(key)] = decodeURIComponent(value) || '';
+            }
+        });
+        $input.value = params.text === undefined ? "compress the compressible" : params.text;
+        $lzButton.checked = params.lz !== undefined;
+        update();
+    }
+
+    onHashChange();
+    window.onhashchange = onHashChange;
+
+    function update() {
+        const text = $input.value;
+        const tokens = $lzButton.checked ? lzCompress(text) : text.split('');
+        lzTokens(tokens, $output.select(".lz"));
         const tree = makeTree(tokens);
         const compressed = tree.compress(tokens);
-        d3.select("div.output .bits").text(compressed);
+        d3tokens(compressed, $output.select(".bits")).classed("backref", x => tree.node(x).token.length > 1);
         const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
         const bits = bitsPerSymbol * text.length;
-        d3.select("div.output .stats").html(
-            `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
+        $output.select(".stats").text(
+            `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits. Compressed: ${compressed.join('').length} bits`);
         treeView.update(tree);
+        window.location.hash = `#text=${encodeURIComponent(text)}` + ($lzButton.checked ? '&lz' : '');
     }
 
 </script>
