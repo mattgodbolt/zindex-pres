@@ -62,7 +62,9 @@
         .output .stats {
             font-size: 0.8em;
         }
-
+        svg.tree {
+            height: 400px;
+        }
     </style>
 </head>
 
@@ -316,7 +318,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                         </div>
                     </div>
                     <div class="bottom">
-                        <svg class="huffman-input"></svg>
+                        <svg class="huffman-input tree"></svg>
                     </div>
                 </div>
             </section>
@@ -333,7 +335,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                         </div>
                     </div>
                     <div class="bottom">
-                        <svg class="lzhuffman-input"></svg>
+                        <svg class="lzhuffman-input tree"></svg>
                     </div>
                 </div>
             </section>

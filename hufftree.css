@@ -1,5 +1,13 @@
 .node text {
     pointer-events: none;
+    font-weight: bold;
+    font-family: sans-serif;
+    text-anchor: middle;
+    alignment-baseline: middle;
+    fill: white;
+}
+
+.node text.token {
 }
 
 .node text.id {
