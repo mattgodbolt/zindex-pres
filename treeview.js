@@ -59,6 +59,7 @@ export class TreeView {
         nodesEnter.append("circle")
             .merge(nodes.select("circle"))
             .classed("leaf", n => n.data.leaf)
+            .classed("backref", n => n.data.backref)
             .transition(transition)
             .attr("r", n => {
                 if (n.data.root) return nodeRadius / 4;

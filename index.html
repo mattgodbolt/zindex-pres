@@ -344,7 +344,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
     update($input.value);
 
     function update(text) {
-        const tokens = text.split('');
+        const tokens = lzCompress(text);
         const tree = makeTree(tokens);
         const compressed = tree.compress(tokens);
         d3.select("div.output .bits").text(compressed);
@@ -354,6 +354,9 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
             `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
         treeView.update(tree);
     }
+
+    import {lzCompress} from "./lz.js";
+    console.log(lzCompress("compress the compressible"));
 </script>
 
 </body>

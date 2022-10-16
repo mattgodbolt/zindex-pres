@@ -21,6 +21,10 @@
     fill: #ee3456;
 }
 
+.node circle.leaf.backref {
+    fill: #2e9d23;
+}
+
 path.edge {
     fill: none;
     stroke-width: 3px;

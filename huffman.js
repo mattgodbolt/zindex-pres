@@ -28,6 +28,7 @@ class Node {
             id: this.name,
             children: this.children ? this.children.map(child => child.toDag()).reverse() : [],
             leaf: !this.children,
+            backref: this.token && this.token.length > 1,
             root: this.name === ""
         }
     }
