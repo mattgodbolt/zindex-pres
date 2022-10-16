@@ -119,8 +119,8 @@
         d3.select("div.output .bits").text(compressed);
         const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
         const bits = bitsPerSymbol * text.length;
-        d3.select("div.output .stats").text(
-            `${text.length} original bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits. Compressed: ${compressed.replaceAll(' ', '').length} bits`);
+        d3.select("div.output .stats").html(
+            `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
 
         const dag = d3.dagHierarchy()(tree.toDag());
         const nodeRadius = 40;
