@@ -1,0 +1,28 @@
+.node text {
+    pointer-events: none;
+}
+
+.node text.id {
+    font-family: monospace;
+}
+
+.node circle {
+    stroke-width: 1px;
+    stroke: #777;
+    fill: #888888;
+}
+
+.node circle:hover {
+    stroke-width: 3px;
+    stroke: #ccc;
+}
+
+.node circle.leaf {
+    fill: #ee3456;
+}
+
+path.edge {
+    fill: none;
+    stroke-width: 3px;
+    stroke: #70b49b;
+}

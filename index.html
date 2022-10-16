@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-dag@0.11.1"></script>
 
     <title>zindex and deflate</title>
 
@@ -20,6 +22,7 @@
 
     <!-- Theme used for syntax highlighting of code -->
     <link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css">
+    <link rel="stylesheet" href="hufftree.css">
     <style>
         .compress {
             white-space: pre;
@@ -31,6 +34,28 @@
             margin: auto !important;
             text-align: center !important;
             box-shadow: none !important;
+        }
+
+        textarea.input {
+            font-size: xx-large;
+            width: 80%;
+            height: 1.5em;
+            text-align: center;
+            resize: none;
+        }
+
+
+        .output .bits {
+            font-size: 0.8em;
+            font-family: monospace;
+        }
+
+        .output .stats {
+            font-size: 0.8em;
+        }
+
+        svg.huffman-input {
+            height: 500px;
         }
     </style>
 </head>
@@ -269,7 +294,19 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 
         <section>
             <section>
-                <div class="fig-container" data-file="huffman.html"></div>
+                <div class="outer">
+                    <div class="top">
+                        <form><textarea id="huffman-input" class="input"></textarea></form>
+                        <div class="output">
+                            <span class="bits"></span>
+                            <br>
+                            <span class="stats"></span>
+                        </div>
+                    </div>
+                    <div class="bottom">
+                        <svg class="huffman-input"></svg>
+                    </div>
+                </div>
             </section>
         </section>
 
@@ -283,26 +320,40 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 </div>
 
 <script src="reveal.js/dist/reveal.js"></script>
-<script src="reveal.js/plugin/zoom/zoom.js"></script>
-<script src="reveal.js/plugin/notes/notes.js"></script>
-<script src="reveal.js/plugin/search/search.js"></script>
-<script src="reveal.js/plugin/markdown/markdown.js"></script>
 <script src="reveal.js/plugin/highlight/highlight.js"></script>
-<script src="reveal.js-d3/reveald3.js"></script>
-<script type="text/javascript">
-
-    // Also available as an ES module, see:
-    // https://revealjs.com/initialization/
+<script type="module">
     Reveal.initialize({
         controls: true,
         progress: true,
         center: true,
         hash: true,
+        width: 1280,
+        height: 720,
 
-// Learn about plugins: https://revealjs.com/plugins/
-        plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight, Reveald3]
+        plugins: [RevealHighlight]
     });
 
+    import {makeTree} from "./huffman.js";
+    import {TreeView} from "./treeview.js";
+
+    const $input = document.getElementById("huffman-input");
+    $input.value = "compress the compressible";
+    $input.oninput = () => update($input.value);
+    $input.onchange = () => false;
+    const treeView = new TreeView(d3.select("svg.huffman-input"));
+    update($input.value);
+
+    function update(text) {
+        const tokens = text.split('');
+        const tree = makeTree(tokens);
+        const compressed = tree.compress(tokens);
+        d3.select("div.output .bits").text(compressed);
+        const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
+        const bits = bitsPerSymbol * text.length;
+        d3.select("div.output .stats").html(
+            `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
+        treeView.update(tree);
+    }
 </script>
 
 </body>

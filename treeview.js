@@ -34,9 +34,7 @@ export class TreeView {
         edges
             .enter()
             .append("path")
-            .attr("fill", "none")
-            .attr("stroke-width", 3)
-            .attr("stroke", 'black')
+            .classed("edge", true)
             .merge(edges)
             .transition(transition)
             .attr("d", ({points}) => line(points));
