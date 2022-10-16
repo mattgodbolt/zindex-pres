@@ -56,6 +56,30 @@
         .output .stats {
             font-size: 4em;
         }
+
+        .node text {
+            pointer-events: none;
+        }
+
+        .node text.id {
+            font-family: monospace;
+        }
+
+        .node circle {
+            stroke-width: 1px;
+            stroke: #777;
+            fill: #888888;
+        }
+
+        .node circle:hover {
+            stroke-width: 3px;
+            stroke: #ccc;
+        }
+
+        .node circle.leaf {
+            fill: #ee3456;
+        }
+
     </style>
 </head>
 <body>
@@ -93,8 +117,10 @@
         const tree = makeTree(text);
         const compressed = tree.compress(text);
         d3.select("div.output .bits").text(compressed);
+        const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
+        const bits = bitsPerSymbol * text.length;
         d3.select("div.output .stats").text(
-            `${text.length} original, ${compressed.replace(' ', '').length} bits compressed using ${tree.numSymbols()} symbols`);
+            `${text.length} original bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits. Compressed: ${compressed.replaceAll(' ', '').length} bits`);
 
         const dag = d3.dagHierarchy()(tree.toDag());
         const nodeRadius = 40;
@@ -140,7 +166,9 @@
         nodes.exit().remove();
         const nodesEnter = nodes
             .enter()
-            .append("g");
+            .append("g")
+            .classed("node", true)
+        ;
         nodesEnter
             .attr("transform", ({x, y}) => `translate(${x}, ${y})`);
         nodes
@@ -148,15 +176,16 @@
             .attr("transform", ({x, y}) => `translate(${x}, ${y})`);
 
         // Plot node circles
-        const circle = nodesEnter.append("circle");
+        const circle = nodesEnter.append("circle")
+        ;
         circle.merge(nodes.select("circle"))
+            .classed("leaf", n => n.data.leaf)
             .transition(transition)
             .attr("r", n => {
                 if (n.data.root) return nodeRadius / 4;
                 if (!n.data.leaf) return nodeRadius * 2 / 4;
                 return nodeRadius;
-            })
-            .attr("fill", (n) => n.data.leaf ? "#ee3456" : "#888888");
+            });
 
         // Add text to nodes
         nodesEnter
