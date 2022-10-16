@@ -32,6 +32,11 @@ class Node {
             root: this.name === ""
         }
     }
+
+    node(name) {
+        if (!name) return this;
+        return this.children[name[0] === '0' ? 0 : 1].node(name.slice(1));
+    }
 }
 
 class Tree {
@@ -44,12 +49,16 @@ class Tree {
         else this.root.name = "";
     }
 
+    node(name) {
+        return this.root.node(name);
+    }
+
     toDag() {
         return this.root.toDag();
     }
 
     compress(tokens) {
-        return (tokens.map(x => this.tokenToSymbol[x])).join(" ");
+        return tokens.map(x => this.tokenToSymbol[x]);
     }
 
     numSymbols() {

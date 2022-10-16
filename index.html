@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="reveal.js/dist/reveal.css">
     <link rel="stylesheet" href="reveal.js/dist/theme/black.css" id="theme">
 
-    <!-- Theme used for syntax highlighting of code -->
     <link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css">
     <link rel="stylesheet" href="hufftree.css">
     <style>
@@ -44,17 +43,18 @@
             resize: none;
         }
 
-        .lz-output span {
+        span.token {
+            display: inline-block;
             border: 1px solid green;
             padding-left: 2px;
             padding-right: 2px;
         }
 
-        .lz-output span.backref {
+        span.token.backref {
             border: 1px solid red;
         }
 
-        .output .bits {
+        .bits {
             font-size: 0.8em;
             font-family: monospace;
         }
@@ -62,6 +62,7 @@
         .output .stats {
             font-size: 0.8em;
         }
+
         svg.tree {
             height: 400px;
         }
@@ -312,8 +313,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                     <div class="top">
                         <form><textarea id="huffman-input" class="input">compress the compressible</textarea></form>
                         <div id="huffman-output" class="output">
-                            <span class="bits"></span>
-                            <br>
+                            <div class="bits"></div>
                             <span class="stats"></span>
                         </div>
                     </div>
@@ -329,8 +329,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                         <form><textarea id="lzhuffman-input" class="input">compress the compressible</textarea></form>
                         <div id="lzhuffman-output" class="output">
                             <div class="lz-output"></div>
-                            <span class="bits"></span>
-                            <br>
+                            <div class="bits"></div>
                             <span class="stats"></span>
                         </div>
                     </div>
@@ -368,8 +367,24 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
     import {TreeView} from "./treeview.js";
     import {lzCompress} from "./lz.js";
 
+    function d3tokens(tokens, node) {
+        const spans = node.selectAll("span").data(tokens);
+        spans.exit().remove();
+        return spans.enter()
+            .append("span")
+            .classed("token", true)
+            .merge(spans)
+            .text(n => `${n}`);
+    }
+
+    function lzTokens(lzTokens, node) {
+        return d3tokens(lzTokens, node)
+            .classed("backref", n => n.length > 1);
+    }
+
     function setupHuffman() {
         const $input = document.getElementById("huffman-input");
+        const $output = d3.select("#huffman-output");
         $input.oninput = () => update($input.value);
         $input.onchange = () => false;
         const treeView = new TreeView(d3.select("svg.huffman-input"));
@@ -379,25 +394,13 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
             const tokens = text.split('');
             const tree = makeTree(tokens);
             const compressed = tree.compress(tokens);
-            d3.select("#huffman-output .bits").text(compressed);
+            d3tokens(compressed, $output.select(".bits"));
             const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
             const bits = bitsPerSymbol * text.length;
-            d3.select("#huffman-output .stats").html(
-                `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
+            $output.select(".stats").text(
+                `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits. Compressed: ${compressed.join("").length} bits`);
             treeView.update(tree);
         }
-    }
-
-    function huffmanSpans(compressed, node) {
-        const spans =node.selectAll("span").data(compressed);
-        spans.enter()
-            .append("span")
-            .classed("lz-token", true)
-            .merge(spans)
-            .text(n=>`${n}`)
-            .classed("backref", n=>n.length > 1);
-        spans.exit().remove();
-
     }
 
     function setupLzHuffman() {
@@ -410,14 +413,14 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 
         function update(text) {
             const tokens = lzCompress(text);
-            huffmanSpans(tokens, $output.select(".lz-output"));
+            lzTokens(tokens, $output.select(".lz-output"));
             const tree = makeTree(tokens);
             const compressed = tree.compress(tokens);
-            $output.select(".bits").text(compressed);
+            d3tokens(compressed, $output.select(".bits")).classed("backref", x => tree.node(x).token.length > 1);
             const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
             const bits = bitsPerSymbol * text.length;
-            $output.select(".stats").html(
-                `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
+            $output.select(".stats").text(
+                `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits. Compressed: ${compressed.join("").length} bits`);
             treeView.update(tree);
         }
     }
@@ -430,7 +433,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 
         function update(text) {
             const compressed = lzCompress(text);
-            huffmanSpans(compressed, d3.select("#lz-output"));
+            lzTokens(compressed, d3.select("#lz-output"));
         }
     }
 
