@@ -36,8 +36,8 @@ class Node {
 class Tree {
     constructor(root) {
         this.root = root;
-        this.codeToSymbol = {};
-        this.root.enname(this.codeToSymbol, "");
+        this.tokenToSymbol = {};
+        this.root.enname(this.tokenToSymbol, "");
         if (!this.root.children)
             this.root.name = "0";
         else this.root.name = "";
@@ -47,29 +47,31 @@ class Tree {
         return this.root.toDag();
     }
 
-    compress(text) {
-        return (text.split('').map(x => this.codeToSymbol[x])).join(" ");
+    compress(tokens) {
+        return (tokens.map(x => this.tokenToSymbol[x])).join(" ");
     }
 
     numSymbols() {
-        return Object.keys(this.codeToSymbol).length;
+        return Object.keys(this.tokenToSymbol).length;
     }
 }
 
-function stringToNodes(text) {
+function toNodes(tokens) {
     const nodes = {};
-    for (const char of text) {
-        if (!nodes[char]) {
-            nodes[char] = new Node(1, char, null);
+    for (const token of tokens) {
+        if (!nodes[token]) {
+            nodes[token] = new Node(1, token, null);
         } else {
-            nodes[char].count++;
+            nodes[token].count++;
         }
     }
     return Object.values(nodes);
 }
 
-export function makeTree(text) {
-    let nodes = stringToNodes(text);
+export function makeTree(tokens) {
+    let nodes = toNodes(tokens);
+    if (nodes.length === 0)
+        return new Tree(new Node(0, '', null));
     while (nodes.length > 1) {
         nodes = nodes.sort((x, y) => x.count - y.count);
         const leftChild = nodes.shift()
