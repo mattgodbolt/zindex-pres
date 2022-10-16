@@ -4,7 +4,7 @@ function matchLength(t1, t2) {
         if (t1[index] !== t2[index])
             break;
     }
-    return index
+    return index;
 }
 
 function findLongestMatch(text, window, maxLen) {
@@ -18,8 +18,8 @@ function findLongestMatch(text, window, maxLen) {
         const match = window.indexOf(toLookFor, startIndex);
         if (match < 0 || match >= maxLen) break;
         let thisMatchLength = matchLength(text, window.slice(match));
-        if (thisMatchLength > longestMatch) {
-            longestIndex = startIndex;
+        if (thisMatchLength >= longestMatch) {
+            longestIndex = match;
             longestMatch = thisMatchLength;
         }
         startIndex = match + 1;
@@ -39,12 +39,12 @@ export function lzCompress(text) {
         const windowStartIndex = Math.max(0, index - Lookback);
         const windowEndIndex = Math.min(text.length, index + Lookahead);
         const window = text.slice(windowStartIndex, windowEndIndex);
-        const match = findLongestMatch(text.slice(index), window, index);// todo not that
+        const match = findLongestMatch(text.slice(index), window, index - windowStartIndex);
         if (!match) {
             result.push(text[index]);
         } else {
             result.push(`{${match[0] - index + windowStartIndex}, ${match[1]}}`);
-            index += match[1];
+            index += match[1] - 1;
         }
     }
 

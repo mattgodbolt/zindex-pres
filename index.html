@@ -39,11 +39,20 @@
         textarea.input {
             font-size: xx-large;
             width: 80%;
-            height: 1.5em;
+            height: 3em;
             text-align: center;
             resize: none;
         }
 
+        .lz-output span {
+            border: 1px solid green;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+
+        .lz-output span.backref {
+            border: 1px solid red;
+        }
 
         .output .bits {
             font-size: 0.8em;
@@ -54,9 +63,6 @@
             font-size: 0.8em;
         }
 
-        svg.huffman-input {
-            height: 500px;
-        }
     </style>
 </head>
 
@@ -152,6 +158,11 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                 <pre class="compress fragment" data-fragment-index="3">"ible"</pre>
                 <div class="fragment">
                     13 + (backref, len) + 4
+                </div>
+            </section>
+            <section>
+                <form><textarea id="lz-input" class="input">compress the compressible</textarea></form>
+                <div id="lz-output" class="lz-output">
                 </div>
             </section>
             <section>
@@ -294,10 +305,11 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 
         <section>
             <section>
+                <h3>Huffman</h3>
                 <div class="outer">
                     <div class="top">
-                        <form><textarea id="huffman-input" class="input"></textarea></form>
-                        <div class="output">
+                        <form><textarea id="huffman-input" class="input">compress the compressible</textarea></form>
+                        <div id="huffman-output" class="output">
                             <span class="bits"></span>
                             <br>
                             <span class="stats"></span>
@@ -305,6 +317,23 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                     </div>
                     <div class="bottom">
                         <svg class="huffman-input"></svg>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <h3>LZ+Huffman</h3>
+                <div class="outer">
+                    <div class="top">
+                        <form><textarea id="lzhuffman-input" class="input">compress the compressible</textarea></form>
+                        <div id="lzhuffman-output" class="output">
+                            <div class="lz-output"></div>
+                            <span class="bits"></span>
+                            <br>
+                            <span class="stats"></span>
+                        </div>
+                    </div>
+                    <div class="bottom">
+                        <svg class="lzhuffman-input"></svg>
                     </div>
                 </div>
             </section>
@@ -335,28 +364,77 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 
     import {makeTree} from "./huffman.js";
     import {TreeView} from "./treeview.js";
+    import {lzCompress} from "./lz.js";
 
-    const $input = document.getElementById("huffman-input");
-    $input.value = "compress the compressible";
-    $input.oninput = () => update($input.value);
-    $input.onchange = () => false;
-    const treeView = new TreeView(d3.select("svg.huffman-input"));
-    update($input.value);
+    function setupHuffman() {
+        const $input = document.getElementById("huffman-input");
+        $input.oninput = () => update($input.value);
+        $input.onchange = () => false;
+        const treeView = new TreeView(d3.select("svg.huffman-input"));
+        update($input.value);
 
-    function update(text) {
-        const tokens = lzCompress(text);
-        const tree = makeTree(tokens);
-        const compressed = tree.compress(tokens);
-        d3.select("div.output .bits").text(compressed);
-        const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
-        const bits = bitsPerSymbol * text.length;
-        d3.select("div.output .stats").html(
-            `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
-        treeView.update(tree);
+        function update(text) {
+            const tokens = text.split('');
+            const tree = makeTree(tokens);
+            const compressed = tree.compress(tokens);
+            d3.select("#huffman-output .bits").text(compressed);
+            const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
+            const bits = bitsPerSymbol * text.length;
+            d3.select("#huffman-output .stats").html(
+                `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
+            treeView.update(tree);
+        }
     }
 
-    import {lzCompress} from "./lz.js";
-    console.log(lzCompress("compress the compressible"));
+    function huffmanSpans(compressed, node) {
+        const spans =node.selectAll("span").data(compressed);
+        spans.enter()
+            .append("span")
+            .classed("lz-token", true)
+            .merge(spans)
+            .text(n=>`${n}`)
+            .classed("backref", n=>n.length > 1);
+        spans.exit().remove();
+
+    }
+
+    function setupLzHuffman() {
+        const $input = document.getElementById("lzhuffman-input");
+        const $output = d3.select("#lzhuffman-output");
+        $input.oninput = () => update($input.value);
+        $input.onchange = () => false;
+        const treeView = new TreeView(d3.select("svg.lzhuffman-input"));
+        update($input.value);
+
+        function update(text) {
+            const tokens = lzCompress(text);
+            huffmanSpans(tokens, $output.select(".lz-output"));
+            const tree = makeTree(tokens);
+            const compressed = tree.compress(tokens);
+            $output.select(".bits").text(compressed);
+            const bitsPerSymbol = Math.ceil(Math.log2(tree.numSymbols()));
+            const bits = bitsPerSymbol * text.length;
+            $output.select(".stats").html(
+                `Original: ${text.length} bytes, ${tree.numSymbols()} unique symbols, ${bitsPerSymbol} bps, ${bits} bits.<br>Compressed: ${compressed.replaceAll(' ', '').length} bits`);
+            treeView.update(tree);
+        }
+    }
+
+    function setupLz() {
+        const $input = document.getElementById("lz-input");
+        $input.oninput = () => update($input.value);
+        update($input.value);
+        $input.onchange = () => false;
+
+        function update(text) {
+            const compressed = lzCompress(text);
+            huffmanSpans(compressed, d3.select("#lz-output"));
+        }
+    }
+
+    setupLz();
+    setupHuffman();
+    setupLzHuffman();
 </script>
 
 </body>

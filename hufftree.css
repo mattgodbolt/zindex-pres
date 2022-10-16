@@ -18,11 +18,11 @@
 }
 
 .node circle.leaf {
-    fill: #ee3456;
+    fill: #2e9d23;
 }
 
 .node circle.leaf.backref {
-    fill: #2e9d23;
+    fill: #ee3456;
 }
 
 path.edge {
