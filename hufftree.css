@@ -8,16 +8,25 @@
 }
 
 .node text.token {
+	color: yellow;
 }
 
 .node text.id {
     font-family: monospace;
 }
 
+.node text.leaf {
+	fill: rgba(128,255,128,1);
+}
+
+.node text.leaf.backref {
+	fill: white;
+}
+
 .node circle {
-    stroke-width: 1px;
-    stroke: #777;
-    fill: #888888;
+    stroke-width: 4px;
+    stroke: rgba(255,255,255,0.4);
+    fill: black;
 }
 
 .node circle:hover {
@@ -26,15 +35,19 @@
 }
 
 .node circle.leaf {
-    fill: #2e9d23;
+    fill: #2b4623;
+		stroke: green;
+		stroke-width: 4px;
 }
 
 .node circle.leaf.backref {
-    fill: #ee3456;
+    fill: #431e1b;
+		stroke: red;
+		stroke-width: 4px;
 }
 
 path.edge {
     fill: none;
-    stroke-width: 3px;
-    stroke: #70b49b;
+    stroke-width: 4px;
+    stroke: rgba(255,255,255,0.4);
 }
