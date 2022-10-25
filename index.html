@@ -88,6 +88,11 @@
         svg.tree {
             height: 400px;
         }
+
+        table.counts th, td {
+            border: none !important;
+            padding: 0 0.1em 0 0.1em !important;
+        }
     </style>
 </head>
 
@@ -113,7 +118,7 @@
                 </ul>
             </section>
             <section>
-                <pre><code data-trim>
+                <pre><code data-trim class="lang-shell">
 godbolt:~ $ ls -hl some-file.csv.gz
 505M Oct 14 14:38 some-file.csv.gz
 godbolt:~ $ time zgrep AAPL.O some-file.csv.gz | wc -l
@@ -123,7 +128,7 @@ Executed in   27.58 secs
             </section>
             <section>
                 <h3>Enter <code>zq</code></h3>
-                <pre><code data-trim>
+                <pre><code data-trim class="lang-shell">
 godbolt:~ 5.2s $ time zq some-file.csv.gz AAPL.O | wc -l
 864221
 Executed in    4.40 secs
@@ -131,21 +136,21 @@ Executed in    4.40 secs
             </section>
             <section>
                 <h3>The catch</h3>
-                <pre class="fragment"><code data-trim>
+                <pre class="fragment"><code data-trim class="lang-shell">
 godbolt:~ $ time zindex -d , -f 1 some-file.csv.gz
 Executed in  108.26 secs
                 </code></pre>
             </section>
             <section>
                 <h3>Dirty secret</h3>
-                <pre><code data-trim>
+                <pre><code data-trim class="lang-shell">
 godbolt:~ $ ls -hl some-file.csv.gz.index
 2.3G Oct 14 14:43 some-file.csv.gz.zindex
                 </code></pre>
             </section>
             <section>
                 <h3>More realistic</h3>
-                <pre><code data-trim>
+                <pre><code data-trim class="lang-shell">
 godbolt:~ $ zindex ~/some-file.csv.gz
 godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 629K Oct 14 16:58 some-file.csv.gz.zindex
@@ -252,60 +257,64 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                 <h2>Magic</h2>
             </section>
             <section>
-                <table>
-                    <tr>
-                        <th>s</th>
-                        <td class="compress">00</td>
-                    </tr>
-                    <tr>
-                        <th>' '</th>
-                        <td class="compress">010</td>
-                    </tr>
-                    <tr>
-                        <th>l</th>
-                        <td class="compress">0110</td>
-                    </tr>
-                    <tr>
-                        <th>i</th>
-                        <td class="compress">01110</td>
-                    </tr>
-                    <tr>
-                        <th>b</th>
-                        <td class="compress">01111</td>
-                    </tr>
-                    <tr>
-                        <th>t</th>
-                        <td class="compress">10000</td>
-                    </tr>
-                    <tr>
-                        <th>h</th>
-                        <td class="compress">10001</td>
-                    </tr>
-                    <tr>
-                        <th>c</th>
-                        <td class="compress">1001</td>
-                    </tr>
-                    <tr>
-                        <th>e</th>
-                        <td class="compress">101</td>
-                    </tr>
-                    <tr>
-                        <th>p</th>
-                        <td class="compress">1100</td>
-                    </tr>
-                    <tr>
-                        <th>r</th>
-                        <td class="compress">1101</td>
-                    </tr>
-                    <tr>
-                        <th>o</th>
-                        <td class="compress">1110</td>
-                    </tr>
-                    <tr>
-                        <th>m</th>
-                        <td class="compress">1111</td>
-                    </tr>
-                </table>
+                <div style="display: flex;">
+                    <table class="counts">
+                        <tr>
+                            <th>s</th>
+                            <td class="compress">00</td>
+                        </tr>
+                        <tr>
+                            <th>' '</th>
+                            <td class="compress">010</td>
+                        </tr>
+                        <tr>
+                            <th>l</th>
+                            <td class="compress">0110</td>
+                        </tr>
+                        <tr>
+                            <th>i</th>
+                            <td class="compress">01110</td>
+                        </tr>
+                        <tr>
+                            <th>b</th>
+                            <td class="compress">01111</td>
+                        </tr>
+                        <tr>
+                            <th>t</th>
+                            <td class="compress">10000</td>
+                        </tr>
+                        <tr>
+                            <th>h</th>
+                            <td class="compress">10001</td>
+                        </tr>
+                    </table>
+                    <table class="counts">
+                        <tr>
+                            <th>c</th>
+                            <td class="compress">1001</td>
+                        </tr>
+                        <tr>
+                            <th>e</th>
+                            <td class="compress">101</td>
+                        </tr>
+                        <tr>
+                            <th>p</th>
+                            <td class="compress">1100</td>
+                        </tr>
+                        <tr>
+                            <th>r</th>
+                            <td class="compress">1101</td>
+                        </tr>
+                        <tr>
+                            <th>o</th>
+                            <td class="compress">1110</td>
+                        </tr>
+                        <tr>
+                            <th>m</th>
+                            <td class="compress">1111</td>
+                        </tr>
+                    </table>
+                </div>
             </section>
             <section>
                 <pre class="compress">compress the compressible</pre>
@@ -315,16 +324,8 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 01110 01111 0110 101 # ible
                 </pre>
             </section>
-            <section><h2>but really</h2>
-                backreference offset and length codes would be in the dictionary
-            </section>
-
-            <section>
-                How often make tree?
-                changes over time?
-                gzip et al output and reset every ~64k
-                At these boundaries...we only need the history of output!
-                Make access points!
+            <section><h2>Comining with LZ</h2>
+                Backreferences, offsets, lengths go in the dictionary too!
             </section>
         </section>
 
@@ -359,6 +360,40 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                         <svg class="lzhuffman-input tree"></svg>
                     </div>
                 </div>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h3>DEFLATE &amp; zindex</h3>
+                <ul>
+                    <li>Supports streaming</li>
+                    <li>Limited backreference window - 32,768</li>
+                    <li>Resets huffman every ~100k</li>
+                    <li>Each reset has minimal state</li>
+                    <li>Checkpoint!</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Live demo!</h3>
+            </section>
+            <section>
+                <h3>zindex</h3>
+                <ul>
+                    <li>Scan compressed file</li>
+                    <li>Every XX bytes, store AccessPoint at next block boundary</li>
+                    <li>Store line offsets, indices</li>
+                </ul>
+            </section>
+            <section>
+                <h3>zq</h3>
+                <ul>
+                    <li>Query index</li>
+                    <li>Find nearest AccessPoint</li>
+                    <li>Coerce zlib</li>
+                    <li>Discard until actual output</li>
+                    <li>Profit</li>
+                </ul>
             </section>
         </section>
 
