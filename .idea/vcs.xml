@@ -3,6 +3,5 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/reveal.js" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/reveal.js-d3" vcs="Git" />
   </component>
 </project>

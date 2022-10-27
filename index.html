@@ -40,7 +40,7 @@
             width: 80%;
             height: 1.9em;
             padding-top: 0.7em;
-            margin-bottom: 1em;
+            margin-bottom: 0.3em;
             text-align: center;
             resize: none;
             border-radius: 90px;
@@ -57,6 +57,7 @@
 
         span.token {
             border: 2px solid green;
+            display: inline-block;
             background: rgba(0, 255, 0, 0.2);
             padding-left: 2px;
             padding-right: 2px;
@@ -268,9 +269,37 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                             <td class="compress">010</td>
                         </tr>
                         <tr>
+                            <th>e</th>
+                            <td class="compress">101</td>
+                        </tr>
+                    </table>
+                    <table class="counts">
+                        <tr>
                             <th>l</th>
                             <td class="compress">0110</td>
                         </tr>
+                        <tr>
+                            <th>p</th>
+                            <td class="compress">1100</td>
+                        </tr>
+                        <tr>
+                            <th>c</th>
+                            <td class="compress">1001</td>
+                        </tr>
+                        <tr>
+                            <th>r</th>
+                            <td class="compress">1101</td>
+                        </tr>
+                        <tr>
+                            <th>o</th>
+                            <td class="compress">1110</td>
+                        </tr>
+                        <tr>
+                            <th>m</th>
+                            <td class="compress">1111</td>
+                        </tr>
+                    </table>
+                    <table class="counts">
                         <tr>
                             <th>i</th>
                             <td class="compress">01110</td>
@@ -288,32 +317,6 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                             <td class="compress">10001</td>
                         </tr>
                     </table>
-                    <table class="counts">
-                        <tr>
-                            <th>c</th>
-                            <td class="compress">1001</td>
-                        </tr>
-                        <tr>
-                            <th>e</th>
-                            <td class="compress">101</td>
-                        </tr>
-                        <tr>
-                            <th>p</th>
-                            <td class="compress">1100</td>
-                        </tr>
-                        <tr>
-                            <th>r</th>
-                            <td class="compress">1101</td>
-                        </tr>
-                        <tr>
-                            <th>o</th>
-                            <td class="compress">1110</td>
-                        </tr>
-                        <tr>
-                            <th>m</th>
-                            <td class="compress">1111</td>
-                        </tr>
-                    </table>
                 </div>
             </section>
             <section>
@@ -324,14 +327,11 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
 01110 01111 0110 101 # ible
                 </pre>
             </section>
-            <section><h2>Comining with LZ</h2>
-                Backreferences, offsets, lengths go in the dictionary too!
-            </section>
         </section>
 
         <section>
             <section>
-                <h3>Huffman</h3>
+                <h5>Huffman</h5>
                 <div class="outer">
                     <div class="top">
                         <form><textarea id="huffman-input" class="input">compress the compressible</textarea></form>
@@ -345,8 +345,14 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                     </div>
                 </div>
             </section>
+            <section><h2>Combining with LZ</h2>
+                <ul>
+                    <li>Symbols not restricted to 8 bits</li>
+                    <li> Backreferences, offsets, lengths go in the dictionary too!</li>
+                </ul>
+            </section>
             <section>
-                <h3>LZ+Huffman</h3>
+                <h5>LZ+Huffman</h5>
                 <div class="outer">
                     <div class="top">
                         <form><textarea id="lzhuffman-input" class="input">compress the compressible</textarea></form>
@@ -368,10 +374,10 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
                 <h3>DEFLATE &amp; zindex</h3>
                 <ul>
                     <li>Supports streaming</li>
-                    <li>Limited backreference window - 32,768</li>
-                    <li>Resets huffman every ~100k</li>
-                    <li>Each reset has minimal state</li>
-                    <li>Checkpoint!</li>
+                    <li class="fragment">Limited backreference window - 32,768</li>
+                    <li class="fragment">Resets huffman every ~100k</li>
+                    <li class="fragment">Each reset has minimal state</li>
+                    <li class="fragment">Checkpoint!</li>
                 </ul>
             </section>
             <section>
@@ -432,7 +438,7 @@ godbolt:~ $ 14.6s $ ls -lh ~/some-file.csv.gz.zindex
             .append("span")
             .classed("token", true)
             .merge(spans)
-            .text(n => `${n}`);
+            .html(n => n === ' ' ? '&nbsp;' : `${n}`);
     }
 
     function lzTokens(lzTokens, node) {
